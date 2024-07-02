@@ -1,23 +1,32 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/thrillee/automated-deployment-service/controllers"
 )
 
-type newSubscriberPayload struct {
-	Title       string `json:"title" validate:"required"`
-	Description string `json:"description" validate:"required"`
-	Reference   string `json:"reference" validate:"required"`
-	Subdomain   string `json:"subdomain" validate:"required"`
+type SubscriberAPIs struct {
+	controller *controllers.Controller
 }
 
-func AddSubscriber(w http.ResponseWriter, r *http.Request) {
+func CreateSubscriberAPI(c *controllers.Controller) *SubscriberAPIs {
+	return &SubscriberAPIs{
+		controller: c,
+	}
+}
+
+func (s *SubscriberAPIs) AddSubscriber(ctx context.Context, w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	newSubscriberPayload := newSubscriberPayload{}
+	newSubscriberPayload := controllers.NewSubscriberPayload{}
 
 	if err := decoder.Decode(&newSubscriberPayload); err != nil {
 		responseWithError(w, 400, fmt.Sprintf("Error parsing JSON: %v", err))
 	}
+
+	controllerResponse := s.controller.AddSubscriber(ctx, newSubscriberPayload)
+	responseWithJSON(w, 201, controllerResponse)
 }

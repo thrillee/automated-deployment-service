@@ -50,16 +50,17 @@ func New() (*MongoDB, error) {
 }
 
 func (db *MongoDB) GetCollection(collectionName string) *mongo.Collection {
-	collection := db.client.Database("ads").Collection(collectionName)
+	collection := db.client.Database(db.dbName).Collection(collectionName)
 	return collection
 }
 
-func (db *MongoDB) PingDB(collectionName string) {
+func (db *MongoDB) PingDB() error {
 	err := db.client.Ping(db.ctx, nil)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	log.Println("Pinged your deployment. You successfully connected to MongoDB!")
+	return nil
 }
 
 func newMongoDBConnection(dbConfig *common.DbConfig) (*mongo.Client, context.Context, error) {

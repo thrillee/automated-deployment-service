@@ -6,6 +6,11 @@ import (
 	"net/http"
 )
 
+func writeJSON(w http.ResponseWriter, s int, v any) error {
+	w.WriteHeader(s)
+	return json.NewEncoder(w).Encode(v)
+}
+
 func responseWithError(w http.ResponseWriter, code int, msg string) {
 	if code > 499 {
 		log.Println("Response with 5XX error: ", msg)

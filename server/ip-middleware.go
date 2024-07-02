@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type authHandler func(w http.ResponseWriter, r *http.Request)
+type authHandler func(w http.ResponseWriter, r *http.Request) error
 
 func middlewareWhitelistedIP(handler authHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

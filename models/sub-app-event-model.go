@@ -9,6 +9,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const (
+	SUBSCRIBER_APP_PENDING   = "SUBSCRIBER_APP_PENDING"
+	SUBSCRIBER_APP_DEPLOYING = "SUBSCRIBER_APP_DEPLOYING"
+	SUBSCRIBER_APP_COMPLETD  = "SUBSCRIBER_APP_COMPLETD"
+	SUBSCRIBER_APP_FAILED    = "SUBSCRIBER_APP_FAILED"
+)
+
 type SubscriberAppEvent struct {
 	ID              primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	AppSubscriberID primitive.ObjectID `bson:"app_subscriber_id" json:"app_subscriber_id"`
@@ -19,6 +26,7 @@ type SubscriberAppEvent struct {
 
 func (ase *SubscriberAppEvent) Insert(ctx context.Context, db *db.MongoDB) error {
 	collection := db.GetCollection("subscriber_app_events")
+	ase.ID = primitive.NewObjectID()
 	_, err := collection.InsertOne(ctx, ase)
 	return err
 }
