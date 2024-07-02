@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"time"
 
 	"github.com/thrillee/automated-deployment-service/db"
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,6 +14,8 @@ type SubscriberProp struct {
 	SubscriberID primitive.ObjectID `bson:"subscriber_id" json:"subscriber_id"`
 	NKey         string             `bson:"nkey" json:"n_key"`
 	NValue       string             `bson:"nvalue" json:"n_value"`
+	Modified     time.Time          `bson:"modified" json:"modified"`
+	Created      time.Time          `bson:"created" json:"created"`
 }
 
 func (sp *SubscriberProp) FindSubscrierPropByKey(ctx context.Context, db *db.MongoDB, subscriberID primitive.ObjectID, nkey string) error {
@@ -21,6 +24,8 @@ func (sp *SubscriberProp) FindSubscrierPropByKey(ctx context.Context, db *db.Mon
 }
 
 func (sp *SubscriberProp) Insert(ctx context.Context, db *db.MongoDB) error {
+	sp.Created = time.Now()
+	sp.Modified = time.Now()
 	collection := db.GetCollection("subscriber_props")
 	sp.ID = primitive.NewObjectID()
 	_, err := collection.InsertOne(ctx, sp)
@@ -28,6 +33,7 @@ func (sp *SubscriberProp) Insert(ctx context.Context, db *db.MongoDB) error {
 }
 
 func (sp *SubscriberProp) Update(ctx context.Context, db *db.MongoDB) error {
+	sp.Modified = time.Now()
 	collection := db.GetCollection("subscriber_props")
 	_, err := collection.UpdateOne(ctx, bson.M{"_id": sp.ID}, bson.M{"$set": sp})
 	return err

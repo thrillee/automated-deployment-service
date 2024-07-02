@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"time"
 
 	"github.com/thrillee/automated-deployment-service/db"
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,6 +15,8 @@ type SubscriberApp struct {
 	AppID        primitive.ObjectID `bson:"app_id" json:"app_id"`
 	SubscriberID primitive.ObjectID `bson:"subscriber_id" json:"subscriber_id"`
 	Status       string             `bson:"status" json:"status"`
+	Modified     time.Time          `bson:"modified" json:"modified"`
+	Created      time.Time          `bson:"created" json:"created"`
 }
 
 func ListAppSubscribersBySubscriberID(ctx context.Context, db *db.MongoDB, subscriberID primitive.ObjectID) ([]SubscriberApp, error) {
@@ -56,12 +59,15 @@ func FilterAppSubscribersBySubscriberIDAndAppReference(ctx context.Context, db *
 }
 
 func (as *SubscriberApp) Insert(ctx context.Context, db *db.MongoDB) error {
+	as.Created = time.Now()
+	as.Modified = time.Now()
 	collection := db.GetCollection("subscriber_apps")
 	_, err := collection.InsertOne(ctx, as)
 	return err
 }
 
 func (as *SubscriberApp) Update(ctx context.Context, db *db.MongoDB) error {
+	as.Modified = time.Now()
 	collection := db.GetCollection("subscriber_apps")
 	_, err := collection.UpdateOne(ctx, bson.M{"_id": as.ID}, bson.M{"$set": as})
 	return err

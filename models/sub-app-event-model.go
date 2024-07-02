@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"time"
 
 	"github.com/thrillee/automated-deployment-service/db"
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,17 +23,22 @@ type SubscriberAppEvent struct {
 	AppDeployStepID primitive.ObjectID `bson:"app_deploy_step_id" json:"app_deploy_step_id"`
 	Step            int                `bson:"step" json:"step"`
 	Status          string             `bson:"status" json:"status"`
+	Modified        time.Time          `bson:"modified" json:"modified"`
+	Created         time.Time          `bson:"created" json:"created"`
 }
 
 func (ase *SubscriberAppEvent) Insert(ctx context.Context, db *db.MongoDB) error {
 	collection := db.GetCollection("subscriber_app_events")
 	ase.ID = primitive.NewObjectID()
+	ase.Created = time.Now()
+	ase.Modified = time.Now()
 	_, err := collection.InsertOne(ctx, ase)
 	return err
 }
 
 func (ase *SubscriberAppEvent) Update(ctx context.Context, db *db.MongoDB) error {
 	collection := db.GetCollection("subscriber_app_events")
+	ase.Modified = time.Now()
 	_, err := collection.UpdateOne(ctx, bson.M{"_id": ase.ID}, bson.M{"$set": ase})
 	return err
 }

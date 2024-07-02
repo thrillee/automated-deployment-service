@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"time"
 
 	"github.com/thrillee/automated-deployment-service/db"
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,6 +16,8 @@ type SubscriberAppLog struct {
 	AppDeployStepID primitive.ObjectID `bson:"app_deploy_step_id" json:"app_deploy_step_id"`
 	NKey            string             `bson:"nkey" json:"n_key"`
 	NValue          string             `bson:"nvalue" json:"n_value"`
+	Modified        time.Time          `bson:"modified" json:"modified"`
+	Created         time.Time          `bson:"created" json:"created"`
 }
 
 func ListAppSubscriberLogsByAppAndSubscriber(ctx context.Context, db *db.MongoDB, appID, subscriberID primitive.ObjectID) ([]SubscriberAppLog, error) {
@@ -72,12 +75,15 @@ func FilterAppSubscriberLogsByAppSubscriberAndNKey(ctx context.Context, db *db.M
 
 func (asl *SubscriberAppLog) Insert(ctx context.Context, db *db.MongoDB) error {
 	collection := db.GetCollection("subscriber_app_logs")
+	asl.Created = time.Now()
+	asl.Modified = time.Now()
 	_, err := collection.InsertOne(ctx, asl)
 	return err
 }
 
 func (asl *SubscriberAppLog) Update(ctx context.Context, db *db.MongoDB) error {
 	collection := db.GetCollection("subscriber_app_logs")
+	asl.Modified = time.Now()
 	_, err := collection.UpdateOne(ctx, bson.M{"_id": asl.ID}, bson.M{"$set": asl})
 	return err
 }
