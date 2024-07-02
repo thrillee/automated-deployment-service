@@ -18,6 +18,13 @@ type NewSubscriberPayload struct {
 }
 
 func (c *Controller) AddSubscriber(ctx context.Context, data NewSubscriberPayload) ControllerResponse {
+	if validationErr := validate.Struct(&data); validationErr != nil {
+		return ControllerResponse{
+			Success: false,
+			Message: validationErr.Error(),
+		}
+	}
+
 	newSub := models.Subscriber{
 		Title:       data.Title,
 		Description: data.Description,
