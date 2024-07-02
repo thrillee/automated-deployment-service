@@ -14,6 +14,7 @@ import (
 
 type HttpAPIServer struct {
 	ListenAddr string
+	dbCon      *db.MongoDB
 }
 
 func (h *HttpAPIServer) Run() {
@@ -33,11 +34,7 @@ func (h *HttpAPIServer) Run() {
 		},
 	))
 
-	dbCon, err := db.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-	controller := controllers.CreateController(dbCon)
+	controller := controllers.CreateController(h.dbCon)
 
 	subAPIs := CreateSubscriberAPI(controller)
 
@@ -60,7 +57,7 @@ func (h *HttpAPIServer) Run() {
 	}
 	fmt.Printf("Starting HTTP Server ON %s...", h.ListenAddr)
 
-	err = srv.ListenAndServe()
+	err := srv.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
 	}
