@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/thrillee/automated-deployment-service/db"
+	"github.com/thrillee/automated-deployment-service/internals/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

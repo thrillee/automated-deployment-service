@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/thrillee/automated-deployment-service/db"
+	"github.com/thrillee/automated-deployment-service/internals/db"
 )
 
 type Controller struct {

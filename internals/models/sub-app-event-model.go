@@ -4,17 +4,17 @@ import (
 	"context"
 	"time"
 
-	"github.com/thrillee/automated-deployment-service/db"
+	"github.com/thrillee/automated-deployment-service/internals/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
-	SUBSCRIBER_APP_PENDING   = "SUBSCRIBER_APP_PENDING"
-	SUBSCRIBER_APP_DEPLOYING = "SUBSCRIBER_APP_DEPLOYING"
-	SUBSCRIBER_APP_COMPLETD  = "SUBSCRIBER_APP_COMPLETD"
-	SUBSCRIBER_APP_FAILED    = "SUBSCRIBER_APP_FAILED"
+	SUBSCRIBER_APP_EVENT_PENDING   = "SUBSCRIBER_APP_EVENT_PENDING"
+	SUBSCRIBER_APP_EVENT_DEPLOYING = "SUBSCRIBER_APP_EVENT_DEPLOYING"
+	SUBSCRIBER_APP_EVENT_COMPLETD  = "SUBSCRIBER_APP_EVENT_COMPLETD"
+	SUBSCRIBER_APP_EVENT_FAILED    = "SUBSCRIBER_APP_EVENT_FAILED"
 )
 
 type SubscriberAppEvent struct {
@@ -25,6 +25,20 @@ type SubscriberAppEvent struct {
 	Status          string             `bson:"status" json:"status"`
 	Modified        time.Time          `bson:"modified" json:"modified"`
 	Created         time.Time          `bson:"created" json:"created"`
+}
+
+func BulkInsertSubscriberAppEvent(ctx context.Context, db *db.MongoDB, events []SubscriberAppEvent) error {
+	collection := db.GetCollection("subscriber_app_events")
+	docs := make([]interface{}, len(events))
+	for i, e := range events {
+		e.ID = primitive.NewObjectID()
+		e.Modified = time.Now()
+		e.Created = time.Now()
+		docs[i] = e
+	}
+	_, err := collection.InsertMany(ctx, docs)
+
+	return err
 }
 
 func (ase *SubscriberAppEvent) Insert(ctx context.Context, db *db.MongoDB) error {
@@ -43,25 +57,13 @@ func (ase *SubscriberAppEvent) Update(ctx context.Context, db *db.MongoDB) error
 	return err
 }
 
-func ListAppSubscriberEventsByAppAndSubscriber(ctx context.Context, db *db.MongoDB, appID, subscriberID primitive.ObjectID) ([]SubscriberAppEvent, error) {
+func ListAppSubscriberEventsByStatus(ctx context.Context, db *db.MongoDB, subAppId primitive.ObjectID, status string) ([]SubscriberAppEvent, error) {
 	collection := db.GetCollection("subscriber_app_events")
-	pipeline := mongo.Pipeline{
-		{{"$lookup", bson.M{
-			"from":         "subscriber_apps",
-			"localField":   "subscriber_app_id",
-			"foreignField": "_id",
-			"as":           "subscriber_app",
-		}}},
-		{{"$unwind", "$subscriber_app"}},
-		{{"$match", bson.M{
-			"subscriber_app.app_id":        appID,
-			"subscriber_app.subscriber_id": subscriberID,
-		}}},
-	}
-	cursor, err := collection.Aggregate(ctx, pipeline)
-	if err != nil {
-		return nil, err
-	}
+	cursor, err := collection.Find(
+		ctx,
+		bson.M{"status": status, "app_subscriber_id": subAppId},
+		options.Find().SetSort(bson.D{{Key: "step", Value: 1}}))
+
 	var results []SubscriberAppEvent
 	if err = cursor.All(ctx, &results); err != nil {
 		return nil, err

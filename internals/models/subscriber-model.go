@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/thrillee/automated-deployment-service/db"
+	"github.com/thrillee/automated-deployment-service/internals/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -17,6 +17,11 @@ type Subscriber struct {
 	CallerRef   string             `bson:"callerref" json:"caller_ref"`
 	Modified    time.Time          `bson:"modified" json:"modified"`
 	Created     time.Time          `bson:"created" json:"created"`
+}
+
+func (s *Subscriber) FindById(ctx context.Context, db *db.MongoDB, id primitive.ObjectID) error {
+	collection := db.GetCollection("subscribers")
+	return collection.FindOne(ctx, bson.M{"_id": id}).Decode(&s)
 }
 
 func (s *Subscriber) FindSubscriberByReference(ctx context.Context, db *db.MongoDB, reference string) error {

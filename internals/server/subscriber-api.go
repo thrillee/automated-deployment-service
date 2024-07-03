@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/thrillee/automated-deployment-service/controllers"
+	"github.com/thrillee/automated-deployment-service/internals/controllers"
 )
 
 type SubscriberAPIs struct {

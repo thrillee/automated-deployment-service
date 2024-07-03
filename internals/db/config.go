@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/thrillee/automated-deployment-service/common"
+	"github.com/thrillee/automated-deployment-service/internals/common"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

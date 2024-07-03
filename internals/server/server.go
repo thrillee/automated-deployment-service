@@ -8,8 +8,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/thrillee/automated-deployment-service/controllers"
-	"github.com/thrillee/automated-deployment-service/db"
+	"github.com/thrillee/automated-deployment-service/internals/controllers"
+	"github.com/thrillee/automated-deployment-service/internals/db"
 )
 
 type HttpAPIServer struct {

@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/thrillee/automated-deployment-service/server"
+	"github.com/thrillee/automated-deployment-service/internals/server"
 )
 
 func main() {
