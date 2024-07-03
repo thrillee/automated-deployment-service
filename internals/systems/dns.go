@@ -1,15 +1,8 @@
 package systems
 
-type DNSResponse struct {
-	Success bool
-	Message string
-	Err     error
-	Result  map[string]interface{}
-}
-
 type RemoteDNSManager interface {
-	CreateAliasRecord(map[string]interface{}) DNSResponse
-	UpdateDNSSettings(map[string]interface{}) DNSResponse
+	CreateAliasRecord(map[string]interface{}) SystemResponse
+	UpdateDNSSettings(map[string]interface{}) SystemResponse
 	GetCreateAliasRecordKey() string
 	GetUpdateDNSSettingsKey() string
 }

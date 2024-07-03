@@ -1,6 +1,6 @@
 package systems
 
-type ContainerResponse struct {
+type SystemResponse struct {
 	Success bool
 	Message string
 	Err     error
@@ -17,10 +17,10 @@ type ContainerPayload struct {
 }
 
 type RemoteContainerService interface {
-	CreateContainer(ContainerPayload) ContainerResponse
-	UpdateContainer(map[string]interface{}) ContainerResponse
-	StartContainer(map[string]interface{}) ContainerResponse
-	SetupAutoScaling(map[string]interface{}) ContainerResponse
+	CreateContainer(ContainerPayload) SystemResponse
+	UpdateContainer(map[string]interface{}) SystemResponse
+	StartContainer(map[string]interface{}) SystemResponse
+	SetupAutoScaling(map[string]interface{}) SystemResponse
 	GetStartContainerKey() string
 	GetCreateContainerKey() string
 	GetUpdateContainerKey() string
