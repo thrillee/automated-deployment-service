@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	"github.com/thrillee/automated-deployment-service/internals/db"
 )
 
@@ -21,7 +22,8 @@ type ProcessorHandlerFactory struct {
 
 type ProcessorResponse struct {
 	Success bool
-	Message bool
+	Message string
+	Err     error
 	Result  interface{}
 }
 
@@ -36,8 +38,19 @@ func NewProcessor(db *db.MongoDB, processorFactory *ProcessorHandlerFactory) *De
 	}
 }
 
-func (p *ProcessorHandlerFactory) Register(key string, handler processorHandlerFunc) {
+func (p *ProcessorHandlerFactory) Register(key string, handler processorHandlerFunc) error {
+	if _, ok := p.handlers[key]; ok {
+		return fmt.Errorf(fmt.Sprintf("Processor Handler Func Registeration Failed: %s already registered", key))
+	}
+
 	p.handlers[key] = handler
+
+	logrus.WithFields(logrus.Fields{
+		"Key":     key,
+		"Handler": handler,
+	}).Info("Registering To Factory")
+
+	return nil
 }
 
 func (p *ProcessorHandlerFactory) GetHandler(key string) (processorHandlerFunc, error) {
